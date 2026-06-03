@@ -1,10 +1,10 @@
-export default function HomePage() {
+export default function Page() {
   return (
     <main className="min-h-screen flex items-center justify-center p-8">
       <div className="max-w-4xl rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-        <h1 className="text-3xl font-semibold">Fitness Subscription Management</h1>
+        <h1 className="text-3xl font-semibold">Transactions</h1>
         <p className="mt-4 text-sm text-slate-600">
-          TODO: Build the landing page for the fitness subscription dashboard and marketing flow.
+          TODO: Add a global transaction oversight page for payments and status overrides.
         </p>
       </div>
     </main>
