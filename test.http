@@ -1,11 +1,6 @@
-POST http://localhost:3000/api/plan
-Content-Type: application/json
+POST http://localhost:3000/api/subscription
 
 {
-  "name": "Basic Plan",
-  "description": "Basic membership",
-  "durationMonths": 3,
-  "baseMonthlyPrice": 500,
-  "discountPercentage": 0,
-  "allowPartialPayment": false
+  "userId": "6a2177faeed0c7bd1a20c787",
+  "planId": "6a20ef369f39def4b534355b"
 }
