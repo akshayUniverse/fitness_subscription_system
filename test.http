@@ -1,0 +1,11 @@
+POST http://localhost:3000/api/plan
+Content-Type: application/json
+
+{
+  "name": "Basic Plan",
+  "description": "Basic membership",
+  "durationMonths": 3,
+  "baseMonthlyPrice": 500,
+  "discountPercentage": 0,
+  "allowPartialPayment": false
+}
