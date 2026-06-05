@@ -1,6 +1,8 @@
-POST http://localhost:3000/api/transaction
+POST http://localhost:3000/api/coupon
 
 {
-  "subscriptionId": "6a21b28d8de012544fb3b5ad",
-  "amountPaid": 1000
+  "code": "WELCOME50",
+  "type": "PERCENTAGE",
+  "value": 50,
+  "expiryDate": "2027-12-31"
 }
