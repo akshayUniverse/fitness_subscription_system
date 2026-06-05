@@ -12,55 +12,46 @@ interface Coupon {
 }
 
 export default function CouponsPage() {
-  const [coupons, setCoupons] =
-    useState<Coupon[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [form, setForm] =
-    useState({
-      code: "",
-      type: "PERCENTAGE",
-      value: 0,
-      expiryDate: "",
-    });
+  const [form, setForm] = useState({
+    code: "",
+    type: "PERCENTAGE",
+    value: 0,
+    expiryDate: "",
+  });
 
   async function loadCoupons() {
-    const response =
-      await fetch("/api/coupon");
+    const response = await fetch("/api/coupon");
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     setCoupons(data.coupons || []);
   }
 
   useEffect(() => {
-    loadCoupons().finally(() =>
-      setLoading(false)
-    );
+    async function init() {
+      await loadCoupons();
+      setLoading(false);
+    }
+
+    init();
   }, []);
 
-  async function createCoupon(
-    e: React.FormEvent
-  ) {
+  async function createCoupon(e: React.FormEvent) {
     e.preventDefault();
 
-    const response = await fetch(
-      "/api/coupon",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-        body: JSON.stringify(form),
-      }
-    );
+    const response = await fetch("/api/coupon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     if (data.success) {
       await loadCoupons();
@@ -76,9 +67,7 @@ export default function CouponsPage() {
 
   return (
     <main className="p-8">
-      <h1 className="text-3xl font-bold mb-8">
-        Coupons
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">Coupons</h1>
 
       <form
         onSubmit={createCoupon}
@@ -106,13 +95,9 @@ export default function CouponsPage() {
           }
           className="w-full border p-2 rounded"
         >
-          <option value="PERCENTAGE">
-            Percentage
-          </option>
+          <option value="PERCENTAGE">Percentage</option>
 
-          <option value="FLAT">
-            Flat
-          </option>
+          <option value="FLAT">Flat</option>
         </select>
 
         <input
@@ -122,9 +107,7 @@ export default function CouponsPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              value: Number(
-                e.target.value
-              ),
+              value: Number(e.target.value),
             })
           }
           className="w-full border p-2 rounded"
@@ -136,16 +119,13 @@ export default function CouponsPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              expiryDate:
-                e.target.value,
+              expiryDate: e.target.value,
             })
           }
           className="w-full border p-2 rounded"
         />
 
-        <button
-          className="px-4 py-2 bg-black text-white rounded"
-        >
+        <button className="px-4 py-2 bg-black text-white rounded">
           Create Coupon
         </button>
       </form>
@@ -155,13 +135,8 @@ export default function CouponsPage() {
       ) : (
         <div className="space-y-4">
           {coupons.map((coupon) => (
-            <div
-              key={coupon._id}
-              className="border rounded-xl p-4"
-            >
-              <h2 className="font-bold">
-                {coupon.code}
-              </h2>
+            <div key={coupon._id} className="border rounded-xl p-4">
+              <h2 className="font-bold">{coupon.code}</h2>
 
               <p>
                 Type:
@@ -175,16 +150,12 @@ export default function CouponsPage() {
 
               <p>
                 Expiry:
-                {new Date(
-                  coupon.expiryDate
-                ).toLocaleDateString()}
+                {new Date(coupon.expiryDate).toLocaleDateString()}
               </p>
 
               <p>
                 Status:
-                {coupon.isActive
-                  ? "Active"
-                  : "Inactive"}
+                {coupon.isActive ? "Active" : "Inactive"}
               </p>
             </div>
           ))}

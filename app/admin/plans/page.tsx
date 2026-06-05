@@ -11,55 +11,46 @@ interface Plan {
 }
 
 export default function PlansPage() {
-  const [plans, setPlans] =
-    useState<Plan[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [form, setForm] =
-    useState({
-      name: "",
-      description: "",
-      durationMonths: 1,
-      baseMonthlyPrice: 0,
-    });
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    durationMonths: 1,
+    baseMonthlyPrice: 0,
+  });
 
   async function loadPlans() {
-    const response =
-      await fetch("/api/plan");
+    const response = await fetch("/api/plan");
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     setPlans(data.plans || []);
   }
 
   useEffect(() => {
-    loadPlans().finally(() =>
-      setLoading(false)
-    );
+    async function init() {
+      await loadPlans();
+      setLoading(false);
+    }
+
+    init();
   }, []);
 
-  async function createPlan(
-    e: React.FormEvent
-  ) {
+  async function createPlan(e: React.FormEvent) {
     e.preventDefault();
 
-    const response = await fetch(
-      "/api/plan",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-        body: JSON.stringify(form),
-      }
-    );
+    const response = await fetch("/api/plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     if (data.success) {
       await loadPlans();
@@ -75,9 +66,7 @@ export default function PlansPage() {
 
   return (
     <main className="p-8">
-      <h1 className="text-3xl font-bold mb-8">
-        Plans
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">Plans</h1>
 
       <form
         onSubmit={createPlan}
@@ -101,8 +90,7 @@ export default function PlansPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              description:
-                e.target.value,
+              description: e.target.value,
             })
           }
           className="w-full border p-2 rounded"
@@ -115,10 +103,7 @@ export default function PlansPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              durationMonths:
-                Number(
-                  e.target.value
-                ),
+              durationMonths: Number(e.target.value),
             })
           }
           className="w-full border p-2 rounded"
@@ -131,18 +116,13 @@ export default function PlansPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              baseMonthlyPrice:
-                Number(
-                  e.target.value
-                ),
+              baseMonthlyPrice: Number(e.target.value),
             })
           }
           className="w-full border p-2 rounded"
         />
 
-        <button
-          className="px-4 py-2 bg-black text-white rounded"
-        >
+        <button className="px-4 py-2 bg-black text-white rounded">
           Create Plan
         </button>
       </form>
@@ -152,17 +132,10 @@ export default function PlansPage() {
       ) : (
         <div className="space-y-4">
           {plans.map((plan) => (
-            <div
-              key={plan._id}
-              className="border rounded-xl p-4"
-            >
-              <h2 className="font-bold">
-                {plan.name}
-              </h2>
+            <div key={plan._id} className="border rounded-xl p-4">
+              <h2 className="font-bold">{plan.name}</h2>
 
-              <p>
-                {plan.description}
-              </p>
+              <p>{plan.description}</p>
 
               <p>
                 Duration:
@@ -170,10 +143,7 @@ export default function PlansPage() {
                 months
               </p>
 
-              <p>
-                Price: ₹
-                {plan.baseMonthlyPrice}
-              </p>
+              <p>Price: ₹{plan.baseMonthlyPrice}</p>
             </div>
           ))}
         </div>
