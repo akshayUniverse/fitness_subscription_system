@@ -1,6 +1,6 @@
-POST http://localhost:3000/api/subscription/expire
+POST http://localhost:3000/api/transaction
 
 {
-  status: "ACTIVE"
-  endDate: "2025-01-01"
+  "subscriptionId": "6a226609b1cb41dac6faed4d",
+  "amountPaid": 2000
 }

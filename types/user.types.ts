@@ -1,3 +1,8 @@
 export interface UserTypes {
-  // TODO: Define shared user type structures used across the application.
+  _id: string;
+  clerkId: string;
+  email: string;
+  name: string;
+  role: string;
+  activeSubscriptionId?: string;
 }

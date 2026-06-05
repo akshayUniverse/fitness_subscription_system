@@ -3,40 +3,22 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-interface User {
-  _id: string;
-  clerkId: string;
-  email: string;
-  name: string;
-  role: string;
-  activeSubscriptionId?: string;
-}
 
-interface Subscription {
-  _id: string;
-  totalAmount: number;
-  paidAmount: number;
-  balanceDue: number;
-  paymentType: string;
-  status: string;
-  startDate: string;
-  endDate: string;
+import StatCard from "@/constants/dashboard/stat-card";
+import StatusBadge from "@/constants/dashboard/status-badge";
+import SectionCard from "@/constants/dashboard/section-card";
 
-  planSnapshot: {
-    name: string;
-    description: string;
-    durationMonths: number;
-    baseMonthlyPrice: number;
-    discountPercentage: number;
-  };
-}
+import { UserTypes } from "@/types/user.types";
+import { SubscriptionTypes } from "@/types/subscription.types";
 
 export default function DashboardPage() {
- const [user, setUser] =
-  useState<User | null>(null);
+  const [user, setUser] =
+    useState<UserTypes | null>(null);
 
-const [subscription, setSubscription] =
-  useState<Subscription | null>(null);
+  const [subscription, setSubscription] =
+    useState<SubscriptionTypes | null>(
+      null
+    );
 
   const [loading, setLoading] =
     useState(true);
@@ -80,7 +62,7 @@ const [subscription, setSubscription] =
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-lg">
         Loading Dashboard...
       </div>
     );
@@ -115,114 +97,151 @@ const [subscription, setSubscription] =
             Dashboard
           </h2>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="border rounded-lg p-5 bg-white">
-              <p className="text-sm text-slate-500">
-                Member
-              </p>
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <StatCard
+              title="Current Plan"
+              value={
+                subscription?.planSnapshot
+                  ?.name || "No Plan"
+              }
+            />
 
-              <h3 className="text-lg font-semibold">
-                {user?.name}
-              </h3>
-            </div>
+            <StatCard
+              title="Balance Due"
+              value={`₹${
+                subscription?.balanceDue ||
+                0
+              }`}
+            />
 
-            <div className="border rounded-lg p-5 bg-white">
-              <p className="text-sm text-slate-500">
-                Current Plan
-              </p>
-
-              <h3 className="text-lg font-semibold">
-                {subscription?.planSnapshot
-                  ?.name || "No Plan"}
-              </h3>
-            </div>
-
-            <div className="border rounded-lg p-5 bg-white">
-              <p className="text-sm text-slate-500">
-                Status
-              </p>
-
-              <h3 className="text-lg font-semibold">
-                {subscription?.status ||
-                  "N/A"}
-              </h3>
-            </div>
+            <StatCard
+              title="Paid Amount"
+              value={`₹${
+                subscription?.paidAmount ||
+                0
+              }`}
+            />
           </div>
 
-          {/* Subscription Details */}
-          {subscription ? (
-            <div className="border rounded-lg p-6 bg-slate-50 mb-8">
-              <h3 className="text-xl font-semibold mb-4">
-                Subscription Details
-              </h3>
+          {/* Subscription Overview */}
+          <SectionCard title="Subscription Overview">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <p>
+                <strong>Member:</strong>{" "}
+                {user?.name}
+              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <p>
-                  <strong>Total Amount:</strong>{" "}
-                  ₹{subscription.totalAmount}
-                </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <StatusBadge
+                  status={
+                    subscription?.status ||
+                    "UNKNOWN"
+                  }
+                />
+              </p>
 
-                <p>
-                  <strong>Paid Amount:</strong>{" "}
-                  ₹{subscription.paidAmount}
-                </p>
+              <p>
+                <strong>
+                  Payment Type:
+                </strong>{" "}
+                {subscription?.paymentType ||
+                  "-"}
+              </p>
 
-                <p>
-                  <strong>Balance Due:</strong>{" "}
-                  ₹{subscription.balanceDue}
-                </p>
+              <p>
+                <strong>
+                  Total Amount:
+                </strong>{" "}
+                ₹
+                {subscription?.totalAmount ||
+                  0}
+              </p>
 
-                <p>
-                  <strong>Payment Type:</strong>{" "}
-                  {subscription.paymentType}
-                </p>
+              <p>
+                <strong>
+                  Start Date:
+                </strong>{" "}
+                {subscription?.startDate
+                  ? new Date(
+                      subscription.startDate
+                    ).toLocaleDateString()
+                  : "-"}
+              </p>
 
-                <p>
-                  <strong>Start Date:</strong>{" "}
-                  {new Date(
-                    subscription.startDate
-                  ).toLocaleDateString()}
-                </p>
-
-                <p>
-                  <strong>End Date:</strong>{" "}
-                  {new Date(
-                    subscription.endDate
-                  ).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="border rounded-lg p-6 bg-slate-50 mb-8">
-              <p className="text-slate-600">
-                No active subscription found.
+              <p>
+                <strong>
+                  End Date:
+                </strong>{" "}
+                {subscription?.endDate
+                  ? new Date(
+                      subscription.endDate
+                    ).toLocaleDateString()
+                  : "-"}
               </p>
             </div>
-          )}
 
-          {/* Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {subscription && (
+              <div className="mt-8">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>
+                    Payment Progress
+                  </span>
+
+                  <span>
+                    ₹
+                    {
+                      subscription.paidAmount
+                    }
+                    /₹
+                    {
+                      subscription.totalAmount
+                    }
+                  </span>
+                </div>
+
+                <div className="h-3 rounded-full bg-slate-200 overflow-hidden">
+                  <div
+                    className="h-full bg-green-500 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        (subscription.paidAmount /
+                          subscription.totalAmount) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Navigation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
             <Link
               href="/billing"
-              className="p-6 border border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition"
+              className="p-6 border border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition"
             >
               <h3 className="font-semibold text-slate-900">
                 View Billing History
               </h3>
 
               <p className="text-sm text-slate-600 mt-2">
-                Check invoices and payment records
+                Check invoices and payment
+                records
               </p>
             </Link>
 
-            <div className="p-6 border border-slate-200 rounded-lg opacity-50 cursor-not-allowed">
+            <div className="p-6 border border-slate-200 rounded-xl opacity-50 cursor-not-allowed">
               <h3 className="font-semibold text-slate-900">
                 Manage Subscription
               </h3>
 
               <p className="text-sm text-slate-600 mt-2">
-                Upgrade and plan changes coming soon
+                Upgrade and plan changes
+                coming soon
               </p>
             </div>
           </div>
