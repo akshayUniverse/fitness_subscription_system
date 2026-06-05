@@ -1,3 +1,15 @@
 export interface TransactionTypes {
-  // TODO: Define shared transaction type structures for billing records.
+  _id: string;
+
+  invoiceNumber: string;
+
+  totalAmount: number;
+
+  amountPaid: number;
+
+  remainingBalance: number;
+
+  paymentStatus: string;
+
+  paymentDate: string;
 }

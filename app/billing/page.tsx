@@ -2,25 +2,20 @@
 
 import { useEffect, useState } from "react";
 
-interface Transaction {
-  _id: string;
-  invoiceNumber: string;
-  amountPaid: number;
-  totalAmount: number;
-  remainingBalance: number;
-  paymentStatus: string;
-  paymentDate: string;
-}
+import StatusBadge from "@/constants/dashboard/status-badge";
+import StatCard from "@/constants/dashboard/stat-card";
+
+import { TransactionTypes } from "@/types/transaction.types";
 
 export default function BillingPage() {
   const [transactions, setTransactions] =
-    useState<Transaction[]>([]);
+    useState<TransactionTypes[]>([]);
 
   const [loading, setLoading] =
     useState(true);
 
   useEffect(() => {
-    async function loadBilling() {
+    async function loadTransactions() {
       try {
         const userRes =
           await fetch("/api/user/me");
@@ -28,17 +23,16 @@ export default function BillingPage() {
         const userData =
           await userRes.json();
 
-        const subscriptionId =
-          userData.user
-            ?.activeSubscriptionId;
-
-        if (!subscriptionId) {
+        if (
+          !userData.user
+            ?.activeSubscriptionId
+        ) {
           return;
         }
 
         const txRes =
           await fetch(
-            `/api/transaction?subscriptionId=${subscriptionId}`
+            `/api/transaction?subscriptionId=${userData.user.activeSubscriptionId}`
           );
 
         const txData =
@@ -54,8 +48,22 @@ export default function BillingPage() {
       }
     }
 
-    loadBilling();
+    loadTransactions();
   }, []);
+
+  const totalPaid =
+    transactions.reduce(
+      (sum, tx) =>
+        sum + tx.amountPaid,
+      0
+    );
+
+  const latestTransaction =
+    transactions[0];
+
+  const outstandingBalance =
+    latestTransaction
+      ?.remainingBalance || 0;
 
   if (loading) {
     return (
@@ -67,103 +75,127 @@ export default function BillingPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-8">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl border p-8 shadow-sm">
-
-        <h1 className="text-3xl font-semibold mb-6">
-          Billing History
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8">
+          Billing Overview
         </h1>
 
-        {transactions.length === 0 ? (
-          <p className="text-slate-600">
-            No transactions found.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            title="Total Paid"
+            value={`₹${totalPaid}`}
+          />
 
-            <table className="w-full border-collapse">
+          <StatCard
+            title="Outstanding Balance"
+            value={`₹${outstandingBalance}`}
+          />
 
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3">
-                    Invoice
-                  </th>
+          <StatCard
+            title="Transactions"
+            value={transactions.length}
+          />
+        </div>
 
-                  <th className="text-left p-3">
-                    Paid
-                  </th>
-
-                  <th className="text-left p-3">
-                    Total
-                  </th>
-
-                  <th className="text-left p-3">
-                    Balance
-                  </th>
-
-                  <th className="text-left p-3">
-                    Status
-                  </th>
-
-                  <th className="text-left p-3">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {transactions.map(
-                  (transaction) => (
-                    <tr
-                      key={transaction._id}
-                      className="border-b"
-                    >
-                      <td className="p-3">
-                        {
-                          transaction.invoiceNumber
-                        }
-                      </td>
-
-                      <td className="p-3">
-                        ₹
-                        {
-                          transaction.amountPaid
-                        }
-                      </td>
-
-                      <td className="p-3">
-                        ₹
-                        {
-                          transaction.totalAmount
-                        }
-                      </td>
-
-                      <td className="p-3">
-                        ₹
-                        {
-                          transaction.remainingBalance
-                        }
-                      </td>
-
-                      <td className="p-3">
-                        {
-                          transaction.paymentStatus
-                        }
-                      </td>
-
-                      <td className="p-3">
-                        {new Date(
-                          transaction.paymentDate
-                        ).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-
-            </table>
-
+        {/* Transactions Table */}
+        <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-semibold">
+              Transaction History
+            </h2>
           </div>
-        )}
+
+          {transactions.length === 0 ? (
+            <div className="p-10 text-center text-slate-500">
+              No transactions found.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-100">
+                  <tr>
+                    <th className="text-left p-4">
+                      Invoice
+                    </th>
+
+                    <th className="text-left p-4">
+                      Paid
+                    </th>
+
+                    <th className="text-left p-4">
+                      Total
+                    </th>
+
+                    <th className="text-left p-4">
+                      Balance
+                    </th>
+
+                    <th className="text-left p-4">
+                      Status
+                    </th>
+
+                    <th className="text-left p-4">
+                      Date
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {transactions.map(
+                    (tx) => (
+                      <tr
+                        key={tx._id}
+                        className="border-t hover:bg-slate-50"
+                      >
+                        <td className="p-4 font-medium">
+                          {
+                            tx.invoiceNumber
+                          }
+                        </td>
+
+                        <td className="p-4">
+                          ₹
+                          {
+                            tx.amountPaid
+                          }
+                        </td>
+
+                        <td className="p-4">
+                          ₹
+                          {
+                            tx.totalAmount
+                          }
+                        </td>
+
+                        <td className="p-4">
+                          ₹
+                          {
+                            tx.remainingBalance
+                          }
+                        </td>
+
+                        <td className="p-4">
+                          <StatusBadge
+                            status={
+                              tx.paymentStatus
+                            }
+                          />
+                        </td>
+
+                        <td className="p-4">
+                          {new Date(
+                            tx.paymentDate
+                          ).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
