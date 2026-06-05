@@ -1,5 +1,7 @@
 import User from "@/models/User";
-import Subscription from "@/models/Subscription";
+import Subscription, {
+  SubscriptionStatus,
+} from "@/models/Subscription";
 import Transaction from "@/models/Transaction";
 
 export const dashboardService = {
@@ -12,27 +14,51 @@ export const dashboardService = {
 
     const activeSubscriptions =
       await Subscription.countDocuments({
-        status: "ACTIVE",
+        status:
+          SubscriptionStatus.ACTIVE,
       });
 
-    const totalRevenue =
+    const revenueResult =
       await Transaction.aggregate([
         {
           $group: {
             _id: null,
-            total: {
+            totalRevenue: {
               $sum: "$amountPaid",
             },
           },
         },
       ]);
 
+    const totalRevenue =
+      revenueResult[0]?.totalRevenue || 0;
+
     return {
       totalUsers,
       totalSubscriptions,
       activeSubscriptions,
-      totalRevenue:
-        totalRevenue[0]?.total || 0,
+      totalRevenue,
     };
+  },
+
+  async updateExpiredSubscriptions() {
+    const today = new Date();
+
+    const result =
+      await Subscription.updateMany(
+        {
+          endDate: {
+            $lt: today,
+          },
+          status:
+            SubscriptionStatus.ACTIVE,
+        },
+        {
+          status:
+            SubscriptionStatus.EXPIRED,
+        }
+      );
+
+    return result;
   },
 };

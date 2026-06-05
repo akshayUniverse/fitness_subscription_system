@@ -1,7 +1,6 @@
-POST http://localhost:3000/api/subscription
+POST http://localhost:3000/api/subscription/expire
 
 {
-  "userId": "6a2177faeed0c7bd1a20c787",
-  "planId": "6a20ef369f39def4b534355b",
-   "couponCode": "WELCOME10"
+  status: "ACTIVE"
+  endDate: "2025-01-01"
 }
