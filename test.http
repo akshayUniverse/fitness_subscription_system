@@ -1,6 +1,6 @@
-POST http://localhost:3000/api/subscription
+POST http://localhost:3000/api/transaction
 
 {
-  "userId": "6a2177faeed0c7bd1a20c787",
-  "planId": "6a20ef369f39def4b534355b"
+  "subscriptionId": "6a21b28d8de012544fb3b5ad",
+  "amountPaid": 1000
 }

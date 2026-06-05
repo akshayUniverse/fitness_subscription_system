@@ -1,8 +1,13 @@
-import Transaction from "@/models/Transaction";
-import Subscription from "@/models/Subscription";
+import Subscription, {
+  SubscriptionStatus,
+} from "@/models/Subscription";
+
+import Transaction, {
+  PaymentStatus,
+} from "@/models/Transaction";
 
 export const transactionService = {
-  async recordPayment(
+  async createTransaction(
     subscriptionId: string,
     amountPaid: number
   ) {
@@ -27,28 +32,24 @@ export const transactionService = {
 
     const paymentStatus =
       remainingBalance <= 0
-        ? "COMPLETED"
-        : "PARTIAL";
+        ? PaymentStatus.COMPLETED
+        : PaymentStatus.PARTIAL;
 
-    const invoiceNumber =
-      `INV-${Date.now()}`;
+    const invoiceNumber = `INV-${Date.now()}`;
 
     const transaction =
       await Transaction.create({
-        userId:
-          subscription.userId,
-
+        userId: subscription.userId,
         subscriptionId,
-
         invoiceNumber,
-
         totalAmount:
           subscription.totalAmount,
-
         amountPaid,
-
-        remainingBalance,
-
+        remainingBalance:
+          Math.max(
+            remainingBalance,
+            0
+          ),
         paymentStatus,
       });
 
@@ -56,13 +57,16 @@ export const transactionService = {
       newPaidAmount;
 
     subscription.balanceDue =
-      remainingBalance;
+      Math.max(
+        remainingBalance,
+        0
+      );
 
     if (
-      remainingBalance <= 0
+      subscription.balanceDue === 0
     ) {
       subscription.status =
-        "COMPLETED";
+        SubscriptionStatus.ACTIVE;
     }
 
     await subscription.save();
