@@ -55,7 +55,11 @@ export async function POST(
 
     const body = await req.json();
 
-    const { userId, planId } = body;
+    const {
+  userId,
+  planId,
+  couponCode,
+} = body;
 
     if (!userId || !planId) {
       return Response.json(
@@ -70,9 +74,10 @@ export async function POST(
 
     const subscription =
       await subscriptionService.createSubscription(
-        userId,
-        planId
-      );
+  userId,
+  planId,
+  couponCode
+);
 
     return Response.json({
       success: true,
