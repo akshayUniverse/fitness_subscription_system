@@ -110,4 +110,26 @@ export const subscriptionService = {
       .populate("planId")
       .populate("userId");
   },
+  async getSubscriptionById(
+  subscriptionId: string
+) {
+  return Subscription.findById(
+    subscriptionId
+  )
+    .populate("userId")
+    .populate("planId")
+    .populate("couponId");
+},
+async getSubscriptionsByUser(
+  userId: string
+) {
+  return Subscription.find({
+    userId,
+  })
+    .populate("planId")
+    .populate("couponId")
+    .sort({
+      createdAt: -1,
+    });
+},
 };
