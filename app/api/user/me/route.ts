@@ -15,14 +15,22 @@ export async function GET() {
           success: false,
           message: "Unauthorized",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const user =
-      await User.findOne({
-        clerkId: userId,
-      });
+    const user = await User.findOne({
+      clerkId: userId,
+    });
+    if (!user) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        { status: 404 },
+      );
+    }
 
     return Response.json({
       success: true,
@@ -32,12 +40,9 @@ export async function GET() {
     return Response.json(
       {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unknown error",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

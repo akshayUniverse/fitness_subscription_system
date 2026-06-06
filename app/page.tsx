@@ -18,7 +18,7 @@ export default function HomePage() {
             {isSignedIn ? (
               <>
                 <Link
-                  href="/dashboard"
+                  href="/redirect"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   Dashboard
@@ -71,7 +71,7 @@ export default function HomePage() {
           ) : (
             <div className="flex gap-4 flex-wrap">
               <Link
-                href="/dashboard"
+                href="/redirect"
                 className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
               >
                 Go to Dashboard

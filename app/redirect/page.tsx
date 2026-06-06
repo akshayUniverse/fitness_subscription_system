@@ -1,41 +1,26 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client";
 
-import { connectToDatabase } from "@/lib/db";
-import User, { UserRole } from "@/models/User";
+import { useEffect } from "react";
 
-async function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export default function RedirectPage() {
+  useEffect(() => {
+    async function redirectUser() {
+      const res = await fetch("/api/user/me");
+      const data = await res.json();
 
-export default async function RedirectPage() {
-  const { userId } = await auth();
+      if (data.user?.role === "ADMIN") {
+        window.location.replace("/admin/dashboard");
+      } else {
+        window.location.replace("/dashboard");
+      }
+    }
 
-  if (!userId) {
-    redirect("/sign-in");
-  }
+    redirectUser();
+  }, []);
 
-  await connectToDatabase();
-
-  let user = null;
-
-  for (let i = 0; i < 10; i++) {
-    user = await User.findOne({
-      clerkId: userId,
-    }).select("role");
-
-    if (user) break;
-
-    await wait(500);
-  }
-
-  if (!user) {
-    redirect("/dashboard");
-  }
-
-  if (user.role === UserRole.ADMIN) {
-    redirect("/admin/dashboard");
-  }
-
-  redirect("/dashboard");
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      Redirecting...
+    </div>
+  );
 }
