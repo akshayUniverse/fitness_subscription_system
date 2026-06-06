@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fitness Subscription Management System
 
-## Getting Started
+A Next.js App Router application for managing fitness subscriptions, plans, coupons, transactions, and billing history.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- Clerk Authentication
+- MongoDB with Mongoose
+- TailwindCSS v4
+- Shadcn UI primitives
+
+## Core Features
+
+- Public landing page with hero, plan/feature summaries, and About page
+- Clerk sign-in and sign-up routes
+- Role-based post-auth redirect through `/redirect`
+- User dashboard with subscription overview and payment progress
+- Billing history for member transactions
+- Admin dashboard analytics
+- Admin plan CRUD
+- Admin coupon CRUD
+- Admin subscription oversight
+- Admin transaction management
+- Subscription creation with coupon support
+- Full and partial payment tracking
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create an environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Fill in MongoDB and Clerk credentials in `.env.local`.
+
+4. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `MONGODB_URI`
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
+- `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL`
+- `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL`
+- `CLERK_WEBHOOK_SECRET`
 
-## Learn More
+## Important Routes
 
-To learn more about Next.js, take a look at the following resources:
+- `/` - landing page
+- `/about` - about page
+- `/sign-in` - Clerk sign in
+- `/sign-up` - Clerk sign up
+- `/redirect` - role-based redirect
+- `/dashboard` - user dashboard
+- `/billing` - billing history
+- `/admin/dashboard` - admin dashboard
+- `/admin/plans` - plan manager
+- `/admin/coupons` - coupon manager
+- `/admin/transactions` - transaction management
+- `/admin/subscriptions` - subscription oversight
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `GET /api/plan`
+- `POST /api/plan`
+- `PUT /api/plan/:id`
+- `DELETE /api/plan/:id`
+- `GET /api/coupon`
+- `POST /api/coupon`
+- `PUT /api/coupon/:id`
+- `DELETE /api/coupon/:id`
+- `POST /api/subscription`
+- `GET /api/subscription`
+- `GET /api/subscription/:id`
+- `POST /api/transaction`
+- `GET /api/transaction`
+- `GET /api/admin/subscriptions`
+- `GET /api/analytics/summary`
+- `GET /api/analytics/transactions`
+- `GET /api/analytics/revenue`
+- `GET /api/analytics/subscriptions`
+- `GET /api/analytics/plans`
 
-## Deploy on Vercel
+## Deployment Checklist
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add all variables from `.env.example` to the deployment provider.
+- Configure Clerk allowed redirect URLs for `/sign-in`, `/sign-up`, and `/redirect`.
+- Configure the Clerk webhook endpoint at `/api/webhooks/clerk`.
+- Ensure MongoDB network access allows the deployment host.
+- Run `npm run build` before submission or deployment.

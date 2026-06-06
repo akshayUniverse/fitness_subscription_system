@@ -1,3 +1,10 @@
 export interface PlanTypes {
-  // TODO: Define shared plan type structures for subscription plans.
+  _id: string;
+  name: string;
+  description: string;
+  durationMonths: number;
+  baseMonthlyPrice: number;
+  discountPercentage: number;
+  allowPartialPayment: boolean;
+  isActive: boolean;
 }

@@ -62,7 +62,7 @@ export default function HomePage() {
                 Get Started
               </Link>
               <Link
-                href="/public/about"
+                href="/about"
                 className="px-6 py-3 border border-slate-300 text-slate-900 font-medium rounded-lg hover:bg-slate-50 transition"
               >
                 Learn More
