@@ -28,6 +28,24 @@ const UserSchema = new Schema(
       trim: true,
     },
 
+    firstName: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    lastName: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    fullName: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     role: {
       type: String,
       enum: Object.values(UserRole),

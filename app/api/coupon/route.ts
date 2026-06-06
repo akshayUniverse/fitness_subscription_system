@@ -1,11 +1,49 @@
+import { NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 
 import { couponService } from "@/services/coupon.service";
+import Coupon from "@/models/Coupon";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
 
+    const code = req.nextUrl.searchParams.get("code");
+
+    // If code is provided, get single coupon by code
+    if (code) {
+      const coupon = await Coupon.findOne({
+        code: code.toUpperCase(),
+        isActive: true,
+      });
+
+      if (!coupon) {
+        return Response.json(
+          {
+            success: false,
+            message: "Coupon not found or expired",
+          },
+          { status: 404 }
+        );
+      }
+
+      if (coupon.expiryDate < new Date()) {
+        return Response.json(
+          {
+            success: false,
+            message: "Coupon has expired",
+          },
+          { status: 400 }
+        );
+      }
+
+      return Response.json({
+        success: true,
+        coupon,
+      });
+    }
+
+    // Otherwise get all coupons
     const coupons =
       await couponService.getCoupons();
 

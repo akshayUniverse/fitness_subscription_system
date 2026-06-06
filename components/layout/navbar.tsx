@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { CreditCard, LayoutDashboard } from "lucide-react";
+import { CreditCard, LayoutDashboard, Zap } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,11 @@ const userLinks = [
     href: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/plans",
+    label: "Plans",
+    icon: Zap,
   },
   {
     href: "/billing",
