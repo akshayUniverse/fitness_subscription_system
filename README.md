@@ -50,6 +50,24 @@ npm run dev
 
 5. Open `http://localhost:3000`.
 
+## Seed Data
+
+After configuring `.env.local`, run:
+
+```bash
+npx tsx scripts/seed.ts
+```
+
+The seed creates:
+
+- Admin user: `admin@example.com`
+- Normal user: `user@example.com`
+- Starter, Pro, and Elite plans
+- Active and expired coupons
+- A demo subscription with partial-payment transactions
+
+Clerk authentication still controls real login. Use these seeded MongoDB records to give evaluators immediate dashboard, billing, and admin data after setup.
+
 ## Required Environment Variables
 
 - `MONGODB_URI`
