@@ -8,7 +8,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header with Auth UI */}
         <div className="flex items-center justify-between mb-12">
           <h1 className="text-2xl font-bold text-slate-900">

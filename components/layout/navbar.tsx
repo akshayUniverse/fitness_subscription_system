@@ -31,7 +31,7 @@ export function UserShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/dashboard" className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-950 sm:text-base">
               Fitness Subscription
