@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+.field {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: white;
+}

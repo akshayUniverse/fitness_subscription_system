@@ -10,14 +10,19 @@ export const subscriptionService = {
     userId: string,
     planId: string,
     couponCode?: string,
+    paymentType: "FULL" | "PARTIAL" = "FULL",
   ) {
     const user = await User.findById(userId);
 
     if (!user) {
       throw new Error("User not found");
     }
-
+    
     const plan = await SubscriptionPlan.findById(planId);
+    
+    if (paymentType === "PARTIAL" && !plan.allowPartialPayment) {
+      throw new Error("This plan does not support partial payment");
+    }
 
     if (!plan) {
       throw new Error("Plan not found");
@@ -92,7 +97,7 @@ export const subscriptionService = {
       paidAmount: 0,
       balanceDue: totalAmount,
 
-      paymentType: plan.allowPartialPayment ? "PARTIAL" : "FULL",
+      paymentType: paymentType,
 
       status: SubscriptionStatus.PENDING,
     });
@@ -110,26 +115,20 @@ export const subscriptionService = {
       .populate("planId")
       .populate("userId");
   },
-  async getSubscriptionById(
-  subscriptionId: string
-) {
-  return Subscription.findById(
-    subscriptionId
-  )
-    .populate("userId")
-    .populate("planId")
-    .populate("couponId");
-},
-async getSubscriptionsByUser(
-  userId: string
-) {
-  return Subscription.find({
-    userId,
-  })
-    .populate("planId")
-    .populate("couponId")
-    .sort({
-      createdAt: -1,
-    });
-},
+  async getSubscriptionById(subscriptionId: string) {
+    return Subscription.findById(subscriptionId)
+      .populate("userId")
+      .populate("planId")
+      .populate("couponId");
+  },
+  async getSubscriptionsByUser(userId: string) {
+    return Subscription.find({
+      userId,
+    })
+      .populate("planId")
+      .populate("couponId")
+      .sort({
+        createdAt: -1,
+      });
+  },
 };

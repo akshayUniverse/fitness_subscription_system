@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { UserShell } from "@/components/layout/navbar";
 
@@ -35,6 +36,8 @@ export default function PlansPage() {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [processing, setProcessing] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     async function loadPlans() {
       try {
@@ -46,7 +49,7 @@ export default function PlansPage() {
         }
 
         const activePlans = (data.plans || []).filter(
-          (p: Plan) => p.isActive !== false
+          (p: Plan) => p.isActive !== false,
         );
         setPlans(activePlans);
       } catch (err) {
@@ -71,7 +74,7 @@ export default function PlansPage() {
 
     try {
       const response = await fetch(
-        `/api/coupon?code=${encodeURIComponent(couponCode)}`
+        `/api/coupon?code=${encodeURIComponent(couponCode)}`,
       );
       const data = await response.json();
 
@@ -84,7 +87,7 @@ export default function PlansPage() {
       }
     } catch (err) {
       setCouponError(
-        err instanceof Error ? err.message : "Failed to validate coupon"
+        err instanceof Error ? err.message : "Failed to validate coupon",
       );
       setCouponData(null);
     } finally {
@@ -123,10 +126,39 @@ export default function PlansPage() {
       if (!subData.success) {
         throw new Error(subData.message || "Failed to create subscription");
       }
+      const subscription = subData.subscription;
+
+      if (paymentType === "FULL") {
+        await fetch("/api/transaction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subscriptionId: subscription._id,
+            amountPaid: subscription.totalAmount,
+          }),
+        });
+      }
+
+      if (paymentType === "PARTIAL") {
+        await fetch("/api/transaction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subscriptionId: subscription._id,
+            amountPaid: Math.round(subscription.totalAmount * 0.3),
+          }),
+        });
+      }
 
       // Show success and redirect
       alert("Subscription created successfully!");
-      window.location.href = "/billing";
+
+      router.push("/billing");
+      router.refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to subscribe");
     } finally {
@@ -191,10 +223,9 @@ export default function PlansPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {plans.map((plan) => {
-              const baseTotal =
-                plan.baseMonthlyPrice * plan.durationMonths;
-              const discountedTotal = baseTotal *
-                (1 - (plan.discountPercentage || 0) / 100);
+              const baseTotal = plan.baseMonthlyPrice * plan.durationMonths;
+              const discountedTotal =
+                baseTotal * (1 - (plan.discountPercentage || 0) / 100);
               const finalTotal = discountedTotal;
 
               const isSelected = selectedPlan === plan._id;
@@ -228,17 +259,18 @@ export default function PlansPage() {
                       <span className="text-2xl font-bold text-slate-950">
                         Rs {Math.round(finalTotal)}
                       </span>
-                      {plan.discountPercentage && plan.discountPercentage > 0 && (
-                        <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
-                          {plan.discountPercentage}% off
-                        </span>
-                      )}
+                      {plan.discountPercentage &&
+                        plan.discountPercentage > 0 && (
+                          <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
+                            {plan.discountPercentage}% off
+                          </span>
+                        )}
                     </div>
 
                     <p className="text-xs text-slate-500">
                       {plan.durationMonths} month
-                      {plan.durationMonths > 1 ? "s" : ""} •{" "}
-                      Rs {Math.round(plan.baseMonthlyPrice)}/month
+                      {plan.durationMonths > 1 ? "s" : ""} • Rs{" "}
+                      {Math.round(plan.baseMonthlyPrice)}/month
                     </p>
                   </div>
 
@@ -373,7 +405,7 @@ export default function PlansPage() {
                       Rs{" "}
                       {Math.round(
                         selectedPlanData.baseMonthlyPrice *
-                          selectedPlanData.durationMonths
+                          selectedPlanData.durationMonths,
                       )}
                     </span>
                   </div>
@@ -387,7 +419,7 @@ export default function PlansPage() {
                           {Math.round(
                             selectedPlanData.baseMonthlyPrice *
                               selectedPlanData.durationMonths *
-                              (selectedPlanData.discountPercentage / 100)
+                              (selectedPlanData.discountPercentage / 100),
                           )}
                         </span>
                       </div>
@@ -400,11 +432,13 @@ export default function PlansPage() {
                         -Rs{" "}
                         {Math.round(
                           couponData.type === "PERCENTAGE"
-                            ? (selectedPlanData.baseMonthlyPrice *
+                            ? selectedPlanData.baseMonthlyPrice *
                                 selectedPlanData.durationMonths *
-                                (1 - (selectedPlanData.discountPercentage || 0) / 100)) *
+                                (1 -
+                                  (selectedPlanData.discountPercentage || 0) /
+                                    100) *
                                 (couponData.value / 100)
-                            : couponData.value
+                            : couponData.value,
                         )}
                       </span>
                     </div>
