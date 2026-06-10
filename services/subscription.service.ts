@@ -19,13 +19,13 @@ export const subscriptionService = {
     }
     
     const plan = await SubscriptionPlan.findById(planId);
-    
-    if (paymentType === "PARTIAL" && !plan.allowPartialPayment) {
-      throw new Error("This plan does not support partial payment");
-    }
 
     if (!plan) {
       throw new Error("Plan not found");
+    }
+    
+    if (paymentType === "PARTIAL" && !plan.allowPartialPayment) {
+      throw new Error("This plan does not support partial payment");
     }
 
     const startDate = new Date();
@@ -130,5 +130,51 @@ export const subscriptionService = {
       .sort({
         createdAt: -1,
       });
+  },
+  async getSubscriptionsByStatus(status: string) {
+    return Subscription.find({
+      status,
+    })
+      .populate("userId")
+      .populate("planId")
+      .sort({
+        createdAt: -1,
+      });
+  },
+  async getSubscriptionsByUserAndStatus(userId: string, status: string) {
+    return Subscription.find({
+      userId,
+      status,
+    })
+      .populate("planId")
+      .populate("couponId")
+      .sort({
+        createdAt: -1,
+      });
+  },
+  async updateSubscriptionStatus(subscriptionId: string, newStatus: string) {
+    return Subscription.findByIdAndUpdate(
+      subscriptionId,
+      { status: newStatus },
+      { new: true }
+    );
+  },
+  calculateSubscriptionStatus(subscription: any): string {
+    const now = new Date();
+    const endDate = new Date(subscription.endDate);
+
+    if (subscription.status === SubscriptionStatus.COMPLETED) {
+      return SubscriptionStatus.COMPLETED;
+    }
+
+    if (endDate < now) {
+      return SubscriptionStatus.EXPIRED;
+    }
+
+    if (subscription.balanceDue === 0) {
+      return SubscriptionStatus.ACTIVE;
+    }
+
+    return SubscriptionStatus.PENDING;
   },
 };

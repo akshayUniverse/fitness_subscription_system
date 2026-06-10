@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { connectToDatabase } from "@/lib/db";
-
-import Transaction from "@/models/Transaction";
+import { transactionService } from "@/services/transaction.service";
 
 export async function GET(
   request: NextRequest
@@ -13,6 +12,14 @@ export async function GET(
     const userId =
       request.nextUrl.searchParams.get(
         "userId"
+      );
+    const subscriptionId =
+      request.nextUrl.searchParams.get(
+        "subscriptionId"
+      );
+    const status =
+      request.nextUrl.searchParams.get(
+        "status"
       );
 
     if (!userId) {
@@ -25,12 +32,21 @@ export async function GET(
       );
     }
 
-    const transactions =
-      await Transaction.find({
-        userId,
-      }).sort({
-        createdAt: -1,
-      });
+    let transactions;
+
+    if (subscriptionId || status) {
+      transactions =
+        await transactionService.getTransactionsWithFilters(
+          userId,
+          subscriptionId || undefined,
+          status || undefined
+        );
+    } else {
+      transactions =
+        await transactionService.getTransactionsByUser(
+          userId
+        );
+    }
 
     return Response.json({
       success: true,

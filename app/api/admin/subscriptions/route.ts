@@ -5,13 +5,19 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const subscriptions =
-      await Subscription.find()
-        .populate("userId")
-        .populate("planId")
-        .sort({
-          createdAt: -1,
-        });
+    const subscriptions = await Subscription.find()
+      .populate({
+        path: "userId",
+        select: "name email",
+      })
+      .populate({
+        path: "planId",
+        select: "name",
+      })
+      .sort({
+        createdAt: -1,
+      });
+    console.log(subscriptions.filter((s) => !s.userId || !s.planId));
 
     return Response.json({
       success: true,
@@ -21,14 +27,11 @@ export async function GET() {
     return Response.json(
       {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unknown error",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

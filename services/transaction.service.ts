@@ -51,4 +51,39 @@ export const transactionService = {
       createdAt: -1,
     });
   },
+  async getTransactionsByUser(userId: string) {
+    return Transaction.find({
+      userId,
+    })
+      .populate("subscriptionId")
+      .sort({
+        paymentDate: -1,
+      });
+  },
+  async getTransactionsWithFilters(
+    userId?: string,
+    subscriptionId?: string,
+    status?: string
+  ) {
+    const filter: any = {};
+
+    if (userId) {
+      filter.userId = userId;
+    }
+
+    if (subscriptionId) {
+      filter.subscriptionId = subscriptionId;
+    }
+
+    if (status) {
+      filter.paymentStatus = status;
+    }
+
+    return Transaction.find(filter)
+      .populate("userId")
+      .populate("subscriptionId")
+      .sort({
+        paymentDate: -1,
+      });
+  },
 };
