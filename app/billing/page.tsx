@@ -7,10 +7,17 @@ import { Filter } from "lucide-react";
 import { UserShell } from "@/components/layout/navbar";
 import StatusBadge from "@/constants/dashboard/status-badge";
 import { TransactionTypes } from "@/types/transaction.types";
+interface SubscriptionOption {
+  _id: string;
+  status: string;
+  planSnapshot?: {
+    name?: string;
+  };
+}
 
 export default function BillingPage() {
   const [transactions, setTransactions] = useState<TransactionTypes[]>([]);
-  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+ const [subscriptions, setSubscriptions] = useState<SubscriptionOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userId, setUserId] = useState<string>("");
@@ -65,13 +72,13 @@ export default function BillingPage() {
 
   if (selectedSubscription) {
     filteredTransactions = filteredTransactions.filter(
-      (tx) => tx.subscriptionId?._id === selectedSubscription
+      (tx) => tx.subscriptionId?._id === selectedSubscription,
     );
   }
 
   if (selectedStatus) {
     filteredTransactions = filteredTransactions.filter(
-      (tx) => tx.paymentStatus === selectedStatus
+      (tx) => tx.paymentStatus === selectedStatus,
     );
   }
 
@@ -79,12 +86,12 @@ export default function BillingPage() {
   if (sortBy === "date-desc") {
     filteredTransactions.sort(
       (a, b) =>
-        new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()
+        new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime(),
     );
   } else if (sortBy === "date-asc") {
     filteredTransactions.sort(
       (a, b) =>
-        new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime()
+        new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime(),
     );
   } else if (sortBy === "amount-desc") {
     filteredTransactions.sort((a, b) => b.amountPaid - a.amountPaid);
@@ -92,8 +99,11 @@ export default function BillingPage() {
     filteredTransactions.sort((a, b) => a.amountPaid - b.amountPaid);
   }
 
-  const totalPaid = filteredTransactions.reduce((sum, tx) => sum + tx.amountPaid, 0);
-  const outstandingBalance = transactions.length > 0 ? transactions[transactions.length - 1]?.remainingBalance || 0 : 0;
+  const totalPaid = filteredTransactions.reduce(
+    (sum, tx) => sum + tx.amountPaid,
+    0,
+  );
+  const outstandingBalance = transactions[0]?.remainingBalance ?? 0;
 
   return (
     <UserShell>
@@ -108,9 +118,18 @@ export default function BillingPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <SummaryCard label="Total Paid" value={`Rs ${totalPaid.toFixed(2)}`} />
-          <SummaryCard label="Outstanding Balance" value={`Rs ${outstandingBalance.toFixed(2)}`} />
-          <SummaryCard label="Transactions" value={filteredTransactions.length} />
+          <SummaryCard
+            label="Total Paid"
+            value={`Rs ${totalPaid.toFixed(2)}`}
+          />
+          <SummaryCard
+            label="Outstanding Balance"
+            value={`Rs ${outstandingBalance.toFixed(2)}`}
+          />
+          <SummaryCard
+            label="Transactions"
+            value={filteredTransactions.length}
+          />
         </div>
 
         {/* Filters */}
@@ -175,20 +194,29 @@ export default function BillingPage() {
         <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 px-5 py-4">
             <h2 className="font-semibold text-slate-950">Invoices</h2>
-            <p className="mt-1 text-sm text-slate-500">All your payment records.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              All your payment records.
+            </p>
           </div>
 
           {loading ? (
             <div className="space-y-3 p-5">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="h-14 animate-pulse rounded-lg bg-slate-100" />
+                <div
+                  key={item}
+                  className="h-14 animate-pulse rounded-lg bg-slate-100"
+                />
               ))}
             </div>
           ) : error ? (
-            <div className="m-5 rounded-lg bg-red-50 p-4 text-sm text-red-700">{error}</div>
+            <div className="m-5 rounded-lg bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
           ) : filteredTransactions.length === 0 ? (
             <div className="p-10 text-center">
-              <h3 className="font-semibold text-slate-950">No transactions found</h3>
+              <h3 className="font-semibold text-slate-950">
+                No transactions found
+              </h3>
               <p className="mt-2 text-sm text-slate-500">
                 {transactions.length === 0
                   ? "Your invoices will appear here once payments are recorded."
@@ -230,8 +258,12 @@ export default function BillingPage() {
                           {tx.subscriptionId?.planSnapshot?.name || "Unknown"}
                         </Link>
                       </td>
-                      <td className="px-5 py-4">Rs {tx.amountPaid.toFixed(2)}</td>
-                      <td className="px-5 py-4">Rs {tx.remainingBalance.toFixed(2)}</td>
+                      <td className="px-5 py-4">
+                        Rs {tx.amountPaid.toFixed(2)}
+                      </td>
+                      <td className="px-5 py-4">
+                        Rs {tx.remainingBalance.toFixed(2)}
+                      </td>
                       <td className="px-5 py-4">
                         <StatusBadge status={tx.paymentStatus} />
                       </td>
@@ -250,11 +282,19 @@ export default function BillingPage() {
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string | number }) {
+function SummaryCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+        {value}
+      </p>
     </div>
   );
 }

@@ -78,7 +78,7 @@ export const subscriptionService = {
         discount = coupon.value;
       }
 
-      totalAmount = Math.max(originalAmount - discount, 0);
+      totalAmount = Math.max(totalAmount - discount, 0);
 
       couponId = coupon._id;
 
@@ -137,7 +137,7 @@ export const subscriptionService = {
       const calculatedStatus = this.calculateSubscriptionStatus(sub);
 
       if (sub.status !== calculatedStatus) {
-        sub.status = calculatedStatus as any;
+        sub.status = calculatedStatus as SubscriptionStatus;
         await sub.save();
       }
     }
@@ -188,7 +188,13 @@ export const subscriptionService = {
       { new: true },
     );
   },
-  calculateSubscriptionStatus(subscription: any): string {
+  calculateSubscriptionStatus(
+  subscription: {
+    endDate: Date;
+    status: string;
+    balanceDue: number;
+  }
+): string{
     const now = new Date();
     const endDate = new Date(subscription.endDate);
 

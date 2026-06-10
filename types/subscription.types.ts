@@ -20,4 +20,10 @@ export interface SubscriptionTypes {
   endDate: string;
 
   planSnapshot: PlanSnapshot;
+
+  couponSnapshot?: {
+    code: string;
+    type: string;
+    value: number;
+  };
 }

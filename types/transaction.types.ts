@@ -12,4 +12,12 @@ export interface TransactionTypes {
   paymentStatus: string;
 
   paymentDate: string;
+
+   subscriptionId?: {
+    _id: string;
+
+    planSnapshot?: {
+      name?: string;
+    };
+  };
 }

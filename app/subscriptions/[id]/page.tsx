@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, CreditCard, Tag } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { UserShell } from "@/components/layout/navbar";
 import StatusBadge from "@/constants/dashboard/status-badge";

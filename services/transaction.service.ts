@@ -38,7 +38,11 @@ export const transactionService = {
       paymentStatus,
     });
 
-    subscription.paidAmount = newPaidAmount;
+    await Subscription.findByIdAndUpdate(subscriptionId, {
+      $inc: {
+        paidAmount: amountPaid,
+      },
+    });
 
     subscription.balanceDue = Math.max(remainingBalance, 0);
 
@@ -74,7 +78,7 @@ export const transactionService = {
     subscriptionId?: string,
     status?: string,
   ) {
-    const filter: any = {};
+    const filter: Record<string, string> = {};
 
     if (userId) {
       filter.userId = userId;
