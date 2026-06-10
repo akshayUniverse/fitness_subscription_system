@@ -164,7 +164,7 @@ export default function PlansPage() {
           },
           body: JSON.stringify({
             subscriptionId: subscription._id,
-            amountPaid: subscription.totalAmount,
+            amountPaid: Number(partialAmount),
           }),
         });
 
