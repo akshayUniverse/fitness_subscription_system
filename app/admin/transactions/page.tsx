@@ -6,6 +6,7 @@ import { Filter, Download } from "lucide-react";
 import { AdminShell } from "@/components/layout/sidebar";
 import StatusBadge from "@/constants/dashboard/status-badge";
 
+
 interface Transaction {
   _id: string;
   invoiceNumber: string;
@@ -31,6 +32,7 @@ export default function TransactionsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [pendingRevenue, setPendingRevenue] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -57,6 +59,17 @@ export default function TransactionsPage() {
       if (!data.success) {
         throw new Error(data.message || "Failed to load transactions");
       }
+      const metricsRes = await fetch(
+  "/api/analytics/dashboard"
+);
+
+const metricsData = await metricsRes.json();
+
+if (metricsData.success) {
+  setPendingRevenue(
+    metricsData.metrics.pendingRevenue
+  );
+}
 
       setTransactions(data.transactions || []);
     } catch (err) {
@@ -71,10 +84,7 @@ export default function TransactionsPage() {
   };
 
   const totalAmountPaid = transactions.reduce((sum, tx) => sum + tx.amountPaid, 0);
-  const totalOutstanding = transactions.reduce(
-    (sum, tx) => sum + tx.remainingBalance,
-    0
-  );
+  
 
   return (
     <AdminShell>
@@ -103,8 +113,8 @@ export default function TransactionsPage() {
             value={`Rs ${totalAmountPaid.toFixed(2)}`}
           />
           <SummaryCard
-            label="Outstanding"
-            value={`Rs ${totalOutstanding.toFixed(2)}`}
+            label="Pending Revenue"
+            value={`Rs ${pendingRevenue.toFixed(2)}`}
           />
         </div>
 
