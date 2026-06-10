@@ -13,17 +13,28 @@ export const subscriptionService = {
     paymentType: "FULL" | "PARTIAL" = "FULL",
   ) {
     const user = await User.findById(userId);
+    const existingSubscription = await Subscription.findOne({
+      userId,
+      planId,
+      status: {
+        $in: ["PENDING", "ACTIVE"],
+      },
+    });
+
+    if (existingSubscription) {
+      throw new Error("You already have an active subscription for this plan");
+    }
 
     if (!user) {
       throw new Error("User not found");
     }
-    
+
     const plan = await SubscriptionPlan.findById(planId);
 
     if (!plan) {
       throw new Error("Plan not found");
     }
-    
+
     if (paymentType === "PARTIAL" && !plan.allowPartialPayment) {
       throw new Error("This plan does not support partial payment");
     }
@@ -37,6 +48,10 @@ export const subscriptionService = {
     const originalAmount = plan.baseMonthlyPrice * plan.durationMonths;
 
     let totalAmount = originalAmount;
+
+    if (plan.discountPercentage) {
+      totalAmount = totalAmount * (1 - plan.discountPercentage / 100);
+    }
 
     let couponId = null;
 
@@ -58,7 +73,7 @@ export const subscriptionService = {
       let discount = 0;
 
       if (coupon.type === CouponType.PERCENTAGE) {
-        discount = (originalAmount * coupon.value) / 100;
+        discount = (totalAmount * coupon.value) / 100;
       } else {
         discount = coupon.value;
       }
@@ -156,7 +171,7 @@ export const subscriptionService = {
     return Subscription.findByIdAndUpdate(
       subscriptionId,
       { status: newStatus },
-      { new: true }
+      { new: true },
     );
   },
   calculateSubscriptionStatus(subscription: any): string {

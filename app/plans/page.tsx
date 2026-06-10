@@ -35,6 +35,7 @@ export default function PlansPage() {
   const [couponData, setCouponData] = useState<Coupon | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [partialAmount, setPartialAmount] = useState("");
 
   const router = useRouter();
 
@@ -129,7 +130,7 @@ export default function PlansPage() {
       const subscription = subData.subscription;
 
       if (paymentType === "FULL") {
-        await fetch("/api/transaction", {
+        const txRes = await fetch("/api/transaction", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -139,19 +140,39 @@ export default function PlansPage() {
             amountPaid: subscription.totalAmount,
           }),
         });
+
+        const txData = await txRes.json();
+
+        if (!txData.success) {
+          throw new Error(txData.message || "Transaction failed");
+        }
       }
 
       if (paymentType === "PARTIAL") {
-        await fetch("/api/transaction", {
+        if (
+          paymentType === "PARTIAL" &&
+          (!partialAmount ||
+            Number(partialAmount) <= 0 ||
+            Number(partialAmount) > subscription.totalAmount)
+        ) {
+          throw new Error("Enter valid payment amount");
+        }
+        const txRes = await fetch("/api/transaction", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             subscriptionId: subscription._id,
-            amountPaid: Math.round(subscription.totalAmount * 0.3),
+            amountPaid: subscription.totalAmount,
           }),
         });
+
+        const txData = await txRes.json();
+
+        if (!txData.success) {
+          throw new Error(txData.message || "Transaction failed");
+        }
       }
 
       // Show success and redirect
@@ -453,11 +474,20 @@ export default function PlansPage() {
 
                   {paymentType === "PARTIAL" &&
                     selectedPlanData.allowPartialPayment && (
-                      <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-900">
-                        You can pay in installments. First payment:{" "}
-                        <span className="font-semibold">
-                          Rs {Math.round(totalPrice * 0.3)}
-                        </span>
+                      <div className="space-y-3">
+                        <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-900">
+                          Enter the amount customer wants to pay now.
+                        </div>
+
+                        <input
+                          type="number"
+                          min="1"
+                          max={totalPrice}
+                          value={partialAmount}
+                          onChange={(e) => setPartialAmount(e.target.value)}
+                          placeholder="Enter amount"
+                          className="w-full rounded-lg border border-slate-300 p-2"
+                        />
                       </div>
                     )}
                 </div>
