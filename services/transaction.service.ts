@@ -9,6 +9,13 @@ export const transactionService = {
     if (!subscription) {
       throw new Error("Subscription not found");
     }
+    if (amountPaid <= 0) {
+      throw new Error("Amount must be greater than 0");
+    }
+
+    if (amountPaid > subscription.balanceDue) {
+      throw new Error(`Maximum payable amount is ${subscription.balanceDue}`);
+    }
 
     const newPaidAmount = subscription.paidAmount + amountPaid;
 
@@ -17,7 +24,9 @@ export const transactionService = {
     const paymentStatus =
       remainingBalance <= 0 ? PaymentStatus.COMPLETED : PaymentStatus.PARTIAL;
 
-    const invoiceNumber = `INV-${Date.now()}`;
+    const invoiceNumber = `INV-${Date.now()}-${Math.floor(
+      Math.random() * 10000,
+    )}`;
 
     const transaction = await Transaction.create({
       userId: subscription.userId,
@@ -63,7 +72,7 @@ export const transactionService = {
   async getTransactionsWithFilters(
     userId?: string,
     subscriptionId?: string,
-    status?: string
+    status?: string,
   ) {
     const filter: any = {};
 

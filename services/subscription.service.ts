@@ -124,11 +124,25 @@ export const subscriptionService = {
     return subscription;
   },
   async getSubscriptionByUser(userId: string) {
-    return Subscription.findOne({
+    const subscriptions = await Subscription.find({
       userId,
     })
       .populate("planId")
-      .populate("userId");
+      .populate("couponId")
+      .sort({
+        createdAt: -1,
+      });
+
+    for (const sub of subscriptions) {
+      const calculatedStatus = this.calculateSubscriptionStatus(sub);
+
+      if (sub.status !== calculatedStatus) {
+        sub.status = calculatedStatus as any;
+        await sub.save();
+      }
+    }
+
+    return subscriptions;
   },
   async getSubscriptionById(subscriptionId: string) {
     return Subscription.findById(subscriptionId)
