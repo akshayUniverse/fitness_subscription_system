@@ -1,6 +1,9 @@
 import { connectToDatabase } from "@/lib/db";
 import Subscription from "@/models/Subscription";
 
+import "@/models/User";
+import "@/models/SubscriptionPlan";
+
 export async function GET() {
   try {
     await connectToDatabase();
